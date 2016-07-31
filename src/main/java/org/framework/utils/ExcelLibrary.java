@@ -283,16 +283,16 @@ public class ExcelLibrary {
 			xssfwrksheet = xssfwrkbook.getSheet(Sheet);
 			int numberOfColumns = xlsxColumnCount();
 			int numberOfRows = xlsxRowCount();
-			String data[][] = new String[numberOfRows-1][numberOfColumns-1];
+			String data[][] = new String[numberOfRows-1][numberOfColumns];
 			for(int i=1;i<numberOfRows;i++)
 			{
-				for(int j=1;j<numberOfColumns;j++)
+				for(int j=0;j<numberOfColumns;j++)
 				{
 					
 					XSSFRow row = xssfwrksheet.getRow(i);
 					XSSFCell cell = row.getCell(j);
 					String val = xssfcellToString(cell);
-					data[i-1][j-1] = val;
+					data[i-1][j] = val;
 					if(val == null){
 						System.out.println("data empty");	
 						}
