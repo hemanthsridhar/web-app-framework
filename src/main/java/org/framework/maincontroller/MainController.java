@@ -24,10 +24,11 @@ public class MainController implements  IHookable{
 	private static ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
 
 	@Parameters(value={"browser","Node Url"})
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	public void setUp(String browser,String url) throws MalformedURLException {
 		DesiredCapabilities dc = new DesiredCapabilities();
 		dc.setBrowserName(browser);
+		dc.setJavascriptEnabled(true);
 		driver.set(new RemoteWebDriver(new URL(url), dc));
 	}
 
@@ -62,7 +63,7 @@ public void run(IHookCallBack callBack, ITestResult testResult){
 	return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
   }
 
-	@AfterMethod
+	@AfterMethod(alwaysRun=true)
 	public void closeBrowser() {
 		getDriver().quit();
 	}

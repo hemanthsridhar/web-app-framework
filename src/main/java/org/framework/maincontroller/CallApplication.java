@@ -7,7 +7,7 @@ public class CallApplication extends MainController{
 
 	ApplicationSetUpPropertyFile setUp = new ApplicationSetUpPropertyFile();
 	
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	public void callApp() {
 		getDriver().get(setUp.getUrl());
 		getDriver().manage().window().maximize();
