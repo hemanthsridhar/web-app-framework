@@ -6,7 +6,7 @@
 	<groupId>com.github.hemanthsridhar</groupId>
 	<artifactId>WebAppFramework</artifactId>
 	<packaging>jar</packaging>
-	<version>1.3.2</version>
+	<version>1.3.3</version>
 
 	<name>WebAppFramework</name>
 	<description>Jar to include in your custom framework which contains excel utilities, main controller, call application, random generation and utilities for selenium operations</description>
