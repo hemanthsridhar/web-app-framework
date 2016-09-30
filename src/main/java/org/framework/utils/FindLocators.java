@@ -7,10 +7,19 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-public class FindLocators extends MainController{
+public class FindLocators {
+
+	WebDriver driver;
+
+	public FindLocators(WebDriver driver)
+	{
+		this.driver = driver;
+	}
+
 
 	public WebElement findElementByXPath(WebDriver driver,String locator)
 	{
+
 		return driver.findElement(By.xpath(locator));
 	}
 	
@@ -18,10 +27,7 @@ public class FindLocators extends MainController{
 	{
 		return driver.findElement(By.className(locator));
 	}
-	
-	
-	
-	
+
 	
 	public WebElement findElementById(WebDriver driver,String locator)
 	{

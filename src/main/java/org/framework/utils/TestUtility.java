@@ -23,10 +23,15 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-public class TestUtility extends MainController {
+public class TestUtility {
 
 
-	public Hashtable<String,Integer> headerindex=new Hashtable<String, Integer>();
+	WebDriver driver;
+	public TestUtility(WebDriver driver)
+	{
+		this.driver = driver;
+	}
+
 	
 	public   void openPageInNewTab() throws AWTException {
 		Robot r = new Robot();                          
@@ -60,30 +65,30 @@ public class TestUtility extends MainController {
 	
 
 	public   void closeCurrentTab() {
-		getDriver().close();
+		driver.close();
 		
 	}
 
 	public   void closeAllTabsExceptFirst() {
 		
-		ArrayList<String> tabs = new ArrayList<String> (getDriver().getWindowHandles());
+		ArrayList<String> tabs = new ArrayList<String> (driver.getWindowHandles());
 		for(int i=1;i<tabs.size();i++)
 		{	
-		getDriver().switchTo().window(tabs.get(i));
-	    getDriver().close();
+		driver.switchTo().window(tabs.get(i));
+	    driver.close();
 		}
-		getDriver().switchTo().window(tabs.get(0));
+		driver.switchTo().window(tabs.get(0));
 	}
 
 	public   void switchToDialogBox(){
 		
-		getDriver().switchTo().window(getDriver().getWindowHandle());
+		driver.switchTo().window(driver.getWindowHandle());
 	    
 	}
 
 
 	public   void printAllTheWindows() {
-		ArrayList<String> al = new ArrayList<String>(getDriver().getWindowHandles());
+		ArrayList<String> al = new ArrayList<String>(driver.getWindowHandles());
 		for(String window : al)
 		{
 			System.out.println(window);
@@ -100,7 +105,7 @@ public class TestUtility extends MainController {
 
 	public   void alertAccept() {
 	
-		Alert alert = getDriver().switchTo().alert();
+		Alert alert = driver.switchTo().alert();
 		alert.accept();
 	}
 	
@@ -116,25 +121,25 @@ public class TestUtility extends MainController {
 	
 	public   void mouseHoverActions(WebElement element)
 	{
-		Actions action = new Actions(getDriver());
+		Actions action = new Actions(driver);
 		action.moveToElement(element).build().perform();
 	}
 	
 	public   void clickAndHoldActions(WebElement element)
 	{
-		Actions action = new Actions(getDriver());
+		Actions action = new Actions(driver);
 		action.clickAndHold(element).build().perform();
 	}
 	
 	public   String getAlertText()
 	{
-		Alert alert = getDriver().switchTo().alert();
+		Alert alert = driver.switchTo().alert();
 		String alertText = alert.getText().trim();
 		return alertText;
 	}
 
 	public   void alertDismiss() {
-		Alert alert = getDriver().switchTo().alert();
+		Alert alert = driver.switchTo().alert();
 		
 		alert.dismiss();
 		
@@ -156,9 +161,10 @@ public class TestUtility extends MainController {
 	
 
 	 public  Hashtable<String,Integer> headers(By table, By header){
-		 WebDriverWait wait = new WebDriverWait(getDriver(), 10);
+		  Hashtable<String,Integer> headerindex=new Hashtable<String, Integer>();
+		 WebDriverWait wait = new WebDriverWait(driver, 10);
 	        wait.until(ExpectedConditions.presenceOfElementLocated(table));
-	        WebElement tablename = getDriver().findElement(table);
+	        WebElement tablename = driver.findElement(table);
 	        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(header));
 	        List<WebElement> colummheader = tablename.findElements(header);
 	        for (int i = 0; i < colummheader.size(); i++) {
@@ -172,15 +178,16 @@ public class TestUtility extends MainController {
 	 
 	 // Method to enter the data on the respective row and column based on column name
 	    public   void enterDataInHandsOnTable(int rownumber,String colName,String dataToEnter) throws Exception{
-	    	Actions action = new Actions(getDriver());
+			 Hashtable<String,Integer> headerindex=new Hashtable<String, Integer>();
+	    	Actions action = new Actions(driver);
 	    	
 	    	String colrow="//tr["+rownumber+"]/td["+headerindex.get(colName)+"]";
 	    
-	        action.click(getDriver().findElement(By.xpath(colrow))).sendKeys(dataToEnter).build().perform();
+	        action.click(driver.findElement(By.xpath(colrow))).sendKeys(dataToEnter).build().perform();
 	       
 	      
-	    getDriver().findElement(By.xpath(colrow)).click();
-	    getDriver().findElement(By.xpath(colrow)).sendKeys(dataToEnter);
+	    driver.findElement(By.xpath(colrow)).click();
+	    driver.findElement(By.xpath(colrow)).sendKeys(dataToEnter);
 	       }
 	   }
 
