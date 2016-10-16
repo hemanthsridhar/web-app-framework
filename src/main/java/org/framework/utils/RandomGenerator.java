@@ -48,7 +48,6 @@ public class RandomGenerator {
         return RandomStringUtils.random(length, true, false);
     }
 
-  
     private  String randomAlphanumeric(Integer length) {
         return RandomStringUtils.randomAlphanumeric(length);
     }
