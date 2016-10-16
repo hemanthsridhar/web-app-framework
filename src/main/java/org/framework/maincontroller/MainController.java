@@ -2,8 +2,11 @@ package org.framework.maincontroller;
 
 
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -67,4 +70,97 @@ public void run(IHookCallBack callBack, ITestResult testResult){
 	public void closeBrowser() {
 		getDriver().quit();
 	}
+	
+	
+	@Attachment(value = "Video of {0}",type="video/mp4")
+	public byte[] saveVideo(String name, WebDriver driver) throws Exception {
+		return getFile("Videos/"+name+".mp4");
+		
+	}
+	
+	private byte[] getFile(String fileName) throws Exception {
+		File file = new File(fileName);
+		return Files.readAllBytes(Paths.get(file.getAbsolutePath()));
+	   
+	}
+	
+	@Attachment(value = "json {0} attachment", type = "text/json")
+	private byte[] attachJSONFile(String attachmentName,String file) {
+	    return file.getBytes();
+	}
+
+	@Attachment(value = "xlsx {0} attachment")
+	private byte[] attachXLSXFile(String attachmentName,String file) {
+	    return file.getBytes();
+	}
+
+	@Attachment(value = "xml {0} attachment", type = "text/xml")
+	private byte[] attachXMLFile(String attachmentName,String file) {
+	    return file.getBytes();
+	}
+
+	@Attachment(value = "text {0} attachment", type = "text/plain")
+	private byte[] attachTextFile(String attachmentName,String file) {
+	    return file.getBytes();
+	}
+
+
+	@Attachment(value = "csv {0} attachment", type = "text/csv")
+	private byte[] attachCSVFile(String attachmentName, String file) {
+	    return file.getBytes();
+	}
+
+
+	@Attachment(value = "csv attachment", type = "text/csv")
+	public byte[] saveCsvAttachment(String filePath) throws Exception {
+	    return getFile(filePath);
+	}
+
+	@Attachment(value = "xml attachment", type = "text/xml")
+	public byte[] saveXMLAttachment(String filePath) throws Exception {
+	    return getFile(filePath);
+	}
+
+
+	@Attachment(value = "xlsx attachment")
+	public byte[] saveXlsxAttachment(String filePath) throws Exception {
+	    return getFile(filePath);
+	}
+
+	@Attachment(value = "text attachment", type ="text/plain")
+	public byte[] saveTextFileAttachment(String filePath) throws Exception {
+	    return getFile(filePath);
+	}
+
+	@Attachment(value="JSON attachment", type="text/json")
+	public byte[] saveJSONFileAttachment(String filePath) throws Exception
+	{
+		return getFile(filePath);
+	}
+	
+	public void attachFile(String fileName,String attachmentName,String format) throws Exception
+	{
+	    if(format.equals("xlsx"))
+	    {
+	        attachXLSXFile(attachmentName,fileName);
+	    }
+	    else if(format.equals("xml"))
+	    {
+	        attachXMLFile(attachmentName,fileName);
+	    }
+	    else if(format.equals("txt"))
+	    {
+	        attachTextFile(attachmentName,fileName);
+	    }
+	    else if(format.equals("csv"))
+	    {
+	        attachCSVFile(attachmentName,fileName);
+	    }
+	    else if (format.equals("json"))
+	    {
+	        attachJSONFile(attachmentName,fileName);
+	    }
+	}
+
+
 }
