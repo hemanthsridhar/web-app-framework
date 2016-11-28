@@ -26,13 +26,13 @@ public class MainController implements  IHookable{
 
 	private static ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
 
-	@Parameters(value={"browser","Node Url"})
+	@Parameters(value={"browser","Remote Url"})
 	@BeforeMethod(alwaysRun=true)
-	public void setUp(String browser,String url) throws MalformedURLException {
+	public void setUp(String browser,String remoteUrl) throws MalformedURLException {
 		DesiredCapabilities dc = new DesiredCapabilities();
 		dc.setBrowserName(browser);
 		dc.setJavascriptEnabled(true);
-		driver.set(new RemoteWebDriver(new URL(url), dc));
+		driver.set(new RemoteWebDriver(new URL(remoteUrl), dc));
 	}
 
 	public WebDriver getDriver() {
