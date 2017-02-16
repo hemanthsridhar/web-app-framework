@@ -15,6 +15,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
+import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -25,9 +26,6 @@ import ru.yandex.qatools.allure.annotations.Attachment;
 public class MainController implements  IHookable{
 
 	private static ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
-
-	String applicationURL = new String();
-	String productName = new String();
 	
 	@Parameters(value={"Product Name","Application URL","browser","Remote Url"})
 	@BeforeMethod(alwaysRun=true)
@@ -36,15 +34,12 @@ public class MainController implements  IHookable{
 		dc.setBrowserName(browser);
 		dc.setJavascriptEnabled(true);
 		driver.set(new RemoteWebDriver(new URL(remoteUrl), dc));
-		this.applicationURL=applicationURL;
-		this.productName=productName;
 	}
 
 	public WebDriver getDriver() {
 		return driver.get();
 	}
-
-
+	
 @Override
 public void run(IHookCallBack callBack, ITestResult testResult){
 	callBack.runTestMethod(testResult);
