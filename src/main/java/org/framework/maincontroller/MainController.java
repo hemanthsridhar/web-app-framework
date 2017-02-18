@@ -25,7 +25,7 @@ import ru.yandex.qatools.allure.annotations.Attachment;
 
 public class MainController implements  IHookable{
 
-	private static ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
+	public static ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
 	
 	@Parameters(value={"Product Name","Application URL","browser","Remote Url"})
 	@BeforeMethod(alwaysRun=true)
@@ -78,35 +78,35 @@ public void run(IHookCallBack callBack, ITestResult testResult){
 		
 	}
 	
-	private byte[] getFile(String fileName) throws Exception {
+	public byte[] getFile(String fileName) throws Exception {
 		File file = new File(fileName);
 		return Files.readAllBytes(Paths.get(file.getAbsolutePath()));
 	   
 	}
 	
 	@Attachment(value = "json {0} attachment", type = "text/json")
-	private byte[] attachJSONFile(String attachmentName,String file) {
+	public byte[] attachJSONFile(String attachmentName,String file) {
 	    return file.getBytes();
 	}
 
 	@Attachment(value = "xlsx {0} attachment")
-	private byte[] attachXLSXFile(String attachmentName,String file) {
+	public byte[] attachXLSXFile(String attachmentName,String file) {
 	    return file.getBytes();
 	}
 
 	@Attachment(value = "xml {0} attachment", type = "text/xml")
-	private byte[] attachXMLFile(String attachmentName,String file) {
+	public byte[] attachXMLFile(String attachmentName,String file) {
 	    return file.getBytes();
 	}
 
 	@Attachment(value = "text {0} attachment", type = "text/plain")
-	private byte[] attachTextFile(String attachmentName,String file) {
+	public byte[] attachTextFile(String attachmentName,String file) {
 	    return file.getBytes();
 	}
 
 
 	@Attachment(value = "csv {0} attachment", type = "text/csv")
-	private byte[] attachCSVFile(String attachmentName, String file) {
+	public byte[] attachCSVFile(String attachmentName, String file) {
 	    return file.getBytes();
 	}
 
@@ -138,27 +138,27 @@ public void run(IHookCallBack callBack, ITestResult testResult){
 		return getFile(filePath);
 	}
 	
-	public void attachFile(String fileName,String attachmentName,String format) throws Exception
+	public void attachFile(String file,String attachmentName,String format) throws Exception
 	{
 	    if(format.equals("xlsx"))
 	    {
-	        attachXLSXFile(attachmentName,fileName);
+	        attachXLSXFile(attachmentName,file);
 	    }
 	    else if(format.equals("xml"))
 	    {
-	        attachXMLFile(attachmentName,fileName);
+	        attachXMLFile(attachmentName,file);
 	    }
 	    else if(format.equals("txt"))
 	    {
-	        attachTextFile(attachmentName,fileName);
+	        attachTextFile(attachmentName,file);
 	    }
 	    else if(format.equals("csv"))
 	    {
-	        attachCSVFile(attachmentName,fileName);
+	        attachCSVFile(attachmentName,file);
 	    }
 	    else if (format.equals("json"))
 	    {
-	        attachJSONFile(attachmentName,fileName);
+	        attachJSONFile(attachmentName,file);
 	    }
 	}
 

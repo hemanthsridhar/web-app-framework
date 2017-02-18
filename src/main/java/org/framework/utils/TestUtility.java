@@ -7,23 +7,17 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-
 import org.framework.maincontroller.MainController;
 import org.openqa.selenium.Alert;
-import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-public class TestUtility {
+public class TestUtility extends MainController{
 
 
 	WebDriver driver;
@@ -159,35 +153,14 @@ public class TestUtility {
  	    driver.manage().window().setSize(maximizedScreenSize);
  	  }
 	
-
-	 public  Hashtable<String,Integer> headers(By table, By header){
-		  Hashtable<String,Integer> headerindex=new Hashtable<String, Integer>();
-		 WebDriverWait wait = new WebDriverWait(driver, 10);
-	        wait.until(ExpectedConditions.presenceOfElementLocated(table));
-	        WebElement tablename = driver.findElement(table);
-	        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(header));
-	        List<WebElement> colummheader = tablename.findElements(header);
-	        for (int i = 0; i < colummheader.size(); i++) {
-	            if(i==0){
-	                continue;
-	            }
-	            headerindex.put(colummheader.get(i).getText(),i);
-	        }
-	        return headerindex;
-	    }
-	 
-	 // Method to enter the data on the respective row and column based on column name
-	    public   void enterDataInHandsOnTable(int rownumber,String colName,String dataToEnter) throws Exception{
-			 Hashtable<String,Integer> headerindex=new Hashtable<String, Integer>();
-	    	Actions action = new Actions(driver);
-	    	
-	    	String colrow="//tr["+rownumber+"]/td["+headerindex.get(colName)+"]";
-	    
-	        action.click(driver.findElement(By.xpath(colrow))).sendKeys(dataToEnter).build().perform();
-	       
-	      
-	    driver.findElement(By.xpath(colrow)).click();
-	    driver.findElement(By.xpath(colrow)).sendKeys(dataToEnter);
-	       }
+	    public boolean assertAlertText(String expectedAlertText) throws Exception{
+			
+			TestUtility utils = new TestUtility(driver);
+			boolean t = utils.getAlertText().replace("\n", "").trim().equals(expectedAlertText);
+			attachFile(utils.getAlertText().trim(), "actual alert text", "txt");
+			attachFile(expectedAlertText.trim(), "expected alert text", "txt");
+			utils.alertAccept();
+			return t;
+		}
 	   }
 
