@@ -1,13 +1,15 @@
 package org.framework.maincontroller;
-
-
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import javax.imageio.ImageIO;
+
+import org.framework.utils.PermittedCharacters;
+import org.framework.utils.PropertyFileReader;
+import org.framework.utils.RandomGenerator;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -15,17 +17,25 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
-import org.testng.ITestContext;
 import org.testng.ITestResult;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 
-import ru.yandex.qatools.allure.annotations.Attachment;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.response.Response;
 
-public class MainController implements  IHookable{
+import org.openqa.selenium.remote.SessionId;
+import org.openqa.selenium.remote.HttpCommandExecutor;
+import ru.yandex.qatools.allure.annotations.Attachment;
+import ru.yandex.qatools.ashot.AShot;
+import ru.yandex.qatools.ashot.Screenshot;
+import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
+
+public class MainController implements  IHookable {
 
 	public static ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
+	private SessionId sessionId;
 	
 	@Parameters(value={"Product Name","Application URL","browser","Remote Url"})
 	@BeforeMethod(alwaysRun=true)
@@ -34,54 +44,87 @@ public class MainController implements  IHookable{
 		dc.setBrowserName(browser);
 		dc.setJavascriptEnabled(true);
 		driver.set(new RemoteWebDriver(new URL(remoteUrl), dc));
+		sessionId = ((RemoteWebDriver) getDriver()).getSessionId();
 	}
 
 	public WebDriver getDriver() {
 		return driver.get();
 	}
 	
-@Override
 public void run(IHookCallBack callBack, ITestResult testResult){
 	callBack.runTestMethod(testResult);
     if (testResult.getThrowable()!= null) {
-    	try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-    	try
+    	PropertyFileReader property = new PropertyFileReader();
+    	if(property.propertiesReader("ScreenshotConfig.properties", "fullScreenshotEnable").equals("true"))
     	{
-    	saveScreenshot(testResult.getName(),getDriver());
+    		String screenshotName=new RandomGenerator().random(10, PermittedCharacters.ALPHANUMERIC); 
+    		try {
+				captureScreenshot(screenshotName,testResult.getName());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
     	}
-    	catch(Exception e)
+    	else
     	{
-    		e.printStackTrace();
+    		saveScreenshot(testResult.getName(),getDriver());
     	}
-   }
+    }
+    getDriver().quit();
+    URL remoteServer = ((HttpCommandExecutor)((RemoteWebDriver) getDriver()).getCommandExecutor()).getAddressOfRemoteServer();
+	try {
+		saveVideo(testResult.getName(),remoteServer,getDriver(),sessionId);
+	} catch (Exception e) {
+	}
 }
 
+public void captureScreenshot(String screenshotTempName,String testCaseName) throws Exception {
+	Screenshot screenshot = new AShot().shootingStrategy(ShootingStrategies.viewportPasting(1000)).takeScreenshot(getDriver());
+	PropertyFileReader property = new PropertyFileReader();
+	String screenshotBaseFolderPath = property.propertiesReader("ScreenshotConfig.properties", "screenshotFolderName");
+	String pathToTheScreenshot = screenshotBaseFolderPath+"/" + screenshotTempName.trim() + ".png";
+	File file = new File(pathToTheScreenshot);
+	if (!file.exists()) {
+		file.mkdir();
+		file.createNewFile();
+	}
+	ImageIO.write(screenshot.getImage(), "png", new File(pathToTheScreenshot));
+	embedFullScreenshotToAllure(pathToTheScreenshot,testCaseName);
+}
+
+@Attachment(value = "Full Screenshot of {0}", type = "image/png")
+public byte[] embedFullScreenshotToAllure(String screenshotName,String screenshotPath) throws Exception {
+	File file = new File(screenshotPath);
+	return Files.readAllBytes(Paths.get(file.getAbsolutePath()));
+	
+}
+
+public void saveVideo(String testCaseName,URL remoteServer, WebDriver driver,SessionId sessionId) throws Exception {
+	URL videoUrl = new URL(remoteServer, "/grid/admin/HubVideoInfoServlet/?sessionId=" + sessionId);
+	Response response = RestAssured.given().when().get(videoUrl);
+	String pathOfTheFile = JsonPath.read(response.asString(), "$.additional.path");
+	attachVideo(testCaseName,pathOfTheFile);
+}
 
 @Attachment(value = "Screenshot of {0}", type = "image/png")
   public byte[] saveScreenshot(String name,WebDriver driver) {
 	return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
   }
 
-	@AfterMethod(alwaysRun=true)
-	public void closeBrowser() {
-		getDriver().quit();
-	}
-	
 	
 	@Attachment(value = "Video of {0}",type="video/mp4")
-	public byte[] saveVideo(String name, WebDriver driver) throws Exception {
-		return getFile("Videos/"+name+".mp4");
+	public byte[] saveVideoMP4(String testCaseName,String path, WebDriver driver) throws Exception {
+		return getFile(path+".mp4");
 		
+	}
+	
+	@Attachment(value = "Video of {0}",type="video/webm")
+	public byte[] attachVideo(String testCaseName,String path) throws Exception {
+		return getFile(path);
 	}
 	
 	public byte[] getFile(String fileName) throws Exception {
 		File file = new File(fileName);
 		return Files.readAllBytes(Paths.get(file.getAbsolutePath()));
-	   
 	}
 	
 	@Attachment(value = "json {0} attachment", type = "text/json")

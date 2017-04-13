@@ -2,12 +2,14 @@ package org.framework.utils;
 
 import java.util.List;
 
+import org.eclipse.jetty.util.Predicate;
 import org.framework.maincontroller.MainController;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 
 public class Waiting {
 
@@ -17,11 +19,12 @@ public class Waiting {
 	{
 		this.driver = driver;
 	}
-	public   void explicitWaitElementToBeClickable(WebElement element, int time){
-		new WebDriverWait(driver, time).until(ExpectedConditions.elementToBeClickable(element));
+	public void explicitWaitElementToBeClickable(WebElement element, int time){
+		new WebDriverWait(driver,time).until(ExpectedConditions.elementToBeClickable(element));
+		
 	}
 	
-	public   void explicitWaitElementToBeClickable(By element, int time){
+	public void explicitWaitElementToBeClickable(By element, int time){
 		new WebDriverWait(driver, time).until(ExpectedConditions.elementToBeClickable(element));
 	}
 	
