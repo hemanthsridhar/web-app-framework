@@ -1,16 +1,17 @@
 package org.framework.maincontroller;
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.io.FileUtils;
 import org.framework.utils.PermittedCharacters;
 import org.framework.utils.PropertyFileReader;
 import org.framework.utils.RandomGenerator;
 import org.openqa.selenium.OutputType;
+import org.openqa.selenium.Platform;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -19,6 +20,7 @@ import org.testng.IHookCallBack;
 import org.testng.IHookable;
 import org.testng.ITestResult;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Parameters;
 
 import com.jayway.jsonpath.JsonPath;
@@ -32,19 +34,63 @@ import ru.yandex.qatools.ashot.AShot;
 import ru.yandex.qatools.ashot.Screenshot;
 import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
 
-public class MainController implements  IHookable {
-
-	public static ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
-	private SessionId sessionId;
+public class MainController implements IHookable {
 	
-	@Parameters(value={"Product Name","Application URL","browser","Remote Url"})
+	public static ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<RemoteWebDriver>();
+	
+	@BeforeSuite(alwaysRun=true)
+	public void cleanTempFolders() throws Exception{
+		PropertyFileReader property = new PropertyFileReader();
+		if(property.propertiesReader("MediaConfig.properties", "fullScreenshotEnable").equals("true"))
+    	{
+			File fullScreenshotTempPath = new File(property.propertiesReader("MediaConfig.properties", "screenshotFolderName"));
+			FileUtils.cleanDirectory(fullScreenshotTempPath.getAbsoluteFile());
+    	}
+	}
+	
+	@Parameters(value={"Product Name","Application URL","Platform","browser","Remote Url"})
 	@BeforeMethod(alwaysRun=true)
-	public void setUp(String productName,String applicationURL,String browser,String remoteUrl) throws MalformedURLException {
+	public void setUp(String productName,String applicationURL,String platform,String browser,String remoteUrl) throws Exception {
 		DesiredCapabilities dc = new DesiredCapabilities();
 		dc.setBrowserName(browser);
 		dc.setJavascriptEnabled(true);
+		switch(platform)
+		{
+			case "ANY":dc.setPlatform(Platform.ANY);
+			break;
+			case "EL_CAPITAN":dc.setPlatform(Platform.EL_CAPITAN);
+			break;
+			case "LINUX":dc.setPlatform(Platform.LINUX);
+			break;
+			case "MAC":dc.setPlatform(Platform.MAC);
+			break;
+			case "MAVERICKS":dc.setPlatform(Platform.MAVERICKS);
+			break;
+			case "MOUNTAIN_LION":dc.setPlatform(Platform.MOUNTAIN_LION);
+			break;
+			case "SNOW_LEOPARD":dc.setPlatform(Platform.SNOW_LEOPARD);
+			break;
+			case "UNIX":dc.setPlatform(Platform.UNIX);
+			break;
+			case "VISTA":dc.setPlatform(Platform.VISTA);
+			break;
+			case "WIN10":dc.setPlatform(Platform.WIN10);
+			break;
+			case "WIN8":dc.setPlatform(Platform.WIN8);
+			break;
+			case "WIN8_1":dc.setPlatform(Platform.WIN8_1);
+			break;
+			case "WINDOWS":dc.setPlatform(Platform.WINDOWS);
+			break;
+			case "XP":dc.setPlatform(Platform.XP);
+			break;
+			case "YOSEMITE":dc.setPlatform(Platform.YOSEMITE);
+			break;
+			case "ANDROID":dc.setPlatform(Platform.ANDROID);
+			break;
+			default: throw new Exception("Invalid Platform name");
+		}
 		driver.set(new RemoteWebDriver(new URL(remoteUrl), dc));
-		sessionId = ((RemoteWebDriver) getDriver()).getSessionId();
 	}
 
 	public WebDriver getDriver() {
@@ -55,7 +101,7 @@ public void run(IHookCallBack callBack, ITestResult testResult){
 	callBack.runTestMethod(testResult);
     if (testResult.getThrowable()!= null) {
     	PropertyFileReader property = new PropertyFileReader();
-    	if(property.propertiesReader("ScreenshotConfig.properties", "fullScreenshotEnable").equals("true"))
+    	if(property.propertiesReader("MediaConfig.properties", "fullScreenshotEnable").equals("true"))
     	{
     		String screenshotName=new RandomGenerator().random(10, PermittedCharacters.ALPHANUMERIC); 
     		try {
@@ -69,6 +115,7 @@ public void run(IHookCallBack callBack, ITestResult testResult){
     		saveScreenshot(testResult.getName(),getDriver());
     	}
     }
+    SessionId sessionId = ((RemoteWebDriver) getDriver()).getSessionId();
     getDriver().quit();
     URL remoteServer = ((HttpCommandExecutor)((RemoteWebDriver) getDriver()).getCommandExecutor()).getAddressOfRemoteServer();
 	try {
@@ -80,7 +127,7 @@ public void run(IHookCallBack callBack, ITestResult testResult){
 public void captureScreenshot(String screenshotTempName,String testCaseName) throws Exception {
 	Screenshot screenshot = new AShot().shootingStrategy(ShootingStrategies.viewportPasting(1000)).takeScreenshot(getDriver());
 	PropertyFileReader property = new PropertyFileReader();
-	String screenshotBaseFolderPath = property.propertiesReader("ScreenshotConfig.properties", "screenshotFolderName");
+	String screenshotBaseFolderPath = property.propertiesReader("MediaConfig.properties", "screenshotFolderName");
 	String pathToTheScreenshot = screenshotBaseFolderPath+"/" + screenshotTempName.trim() + ".png";
 	File file = new File(pathToTheScreenshot);
 	if (!file.exists()) {
